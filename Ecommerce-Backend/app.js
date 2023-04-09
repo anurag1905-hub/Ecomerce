@@ -1,0 +1,52 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+const categoryRoutes = require('./routes/category');
+const productRoutes = require('./routes/product');
+const braintreeRoutes = require('./routes/braintree');
+const orderRoutes = require('./routes/order');
+const cookieParser = require('cookie-parser');
+const expressValidator = require('express-validator');
+require('dotenv').config();
+const cors = require('cors');
+
+//app
+const app = express();
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
+    credentials: true
+}));
+
+//middlewares
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(expressValidator());
+
+// db
+mongoose.connect(process.env.DATABASE,{})
+.then(()=>{console.log('Database Connected')})
+.catch((err)=> {console.log("DB Error => ",err)});
+
+
+//routes middleware
+app.use('/api',authRoutes);
+app.use('/api',userRoutes);
+app.use('/api',categoryRoutes);
+app.use('/api',productRoutes);
+app.use('/api',braintreeRoutes);
+app.use('/api',orderRoutes);
+
+
+const port = process.env.PORT || 8000;
+
+app.listen(port,()=>{
+    console.log(`Server is running successfully on port: ${port}`);
+});
+
